@@ -3,7 +3,7 @@ defmodule Bacon.WikiClientTest do
 
   test "response body is a map for valid article name" do
     response = Bacon.WikiClient.get("Kevin_Bacon")
-    response.body |> is_map
+    assert response.body |> is_map
   end
   
   test "can make multiple concurrent requests" do
