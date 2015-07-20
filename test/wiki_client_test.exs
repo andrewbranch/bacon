@@ -1,27 +1,25 @@
 defmodule Bacon.WikiClientTest do
   use ExUnit.Case
-  require Logger
 
-  test "response body is a string for valid article name" do
+  test "response body is a map for valid article name" do
     response = Bacon.WikiClient.get("Kevin_Bacon")
-    assert response.body |> is_bitstring
+    response.body |> is_map
   end
   
   test "can make multiple concurrent requests" do
-    titles = ["<title>Kevin Bacon", "<title>Portlandia", "<title>List"]
+    backlinks = ["Apollo 13", "Jello Biafra", "List of fictional dogs"]
     ["Kevin_Bacon", "Portlandia_(TV_series)", "List_of_fictional_big_cats"]
     |> Enum.map(fn (article) ->
       Bacon.WikiClient.get article, [stream_to: self]
     end)
-    |> Enum.map(fn (response) ->
-      %HTTPotion.AsyncResponse{id: id} = response
-      id
-    end)
     |> Enum.with_index
     |> Enum.each fn (tuple) ->
-      {id, index} = tuple
+      {response = %{id: id}, index} = tuple
       assert_receive %HTTPotion.AsyncChunk{id: ^id, chunk: body}, 5000
-      assert body |> String.contains? Enum.at(titles, index)
+      body = Bacon.WikiClient.process_response_body(body)
+      assert body["query"]["backlinks"] |> Enum.any? fn (link) ->
+        link["title"] == backlinks |> Enum.at index
+      end
     end
   end
 end
