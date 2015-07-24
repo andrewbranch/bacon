@@ -7,5 +7,4 @@ defmodule Bacon.WikiParserTest do
     assert titles |> Enum.count == 10
     assert titles |> Enum.at(0) == "Afterlife"
   end
-  
 end

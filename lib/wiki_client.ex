@@ -3,7 +3,7 @@ defmodule Bacon.WikiClient do
   require Logger
   
   def process_url(article) do
-    "https://en.wikipedia.org/w/api.php?action=query&list=backlinks&format=json&bltitle=" <> article
+    "https://en.wikipedia.org/w/api.php?action=query&list=backlinks&format=json&bllimit=500&bltitle=" <> article
   end
   
   def process_request_headers(headers) do
@@ -17,5 +17,10 @@ defmodule Bacon.WikiClient do
       |> Poison.Parser.parse
     )
     |> elem 1
+  end
+  
+  # I can’t find a scenario when the chunk isn’t the whole body
+  def process_response_chunk(chunk) do
+    process_response_body chunk
   end
 end
