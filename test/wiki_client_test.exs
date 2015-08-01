@@ -22,4 +22,10 @@ defmodule Bacon.WikiClientTest do
       end
     end
   end
+  
+  test "continues requests that return continue codes" do
+    id = WikiClient.get_backlinks "Kevin_Bacon", self
+    assert_receive %{id: ^id, backlinks: backlinks}, 7500
+    assert Enum.count(backlinks) > 1000
+  end
 end
